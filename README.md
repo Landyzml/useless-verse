@@ -1,5 +1,7 @@
 # useless verse.
 
+**Live website: [useless verse.](https://landyzml.github.io/useless-verse/)**
+
 A universe of beautifully useless things. Phase 1 builds the home for future original web experiments. The first published experience is The Bard’s Tongue, a local Shakespearean-style translator. There are no fictional projects, accounts, databases, or external API requirements.
 
 ## Local development
