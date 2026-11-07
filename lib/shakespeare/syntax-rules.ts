@@ -13,7 +13,7 @@ export function finiteFor(base:string,subject:Token[],past=false):string|undefin
 }
 const core=(c:Clause)=>!c.question&&!c.passive&&!c.units.some(t=>/^(only|nor|neither|nobody|nothing|no)$/.test(source(t)));
 const transitive=/^(know|remember|forget|accept|love|trust|believe|fear|see|hear|keep|read|write|take|give|send|show|tell|bring|understand|find|want|need|hold|carry|seek)$/;
-const frontable=(c:Clause)=>core(c)&&!/^(do|does|did)$/.test(source(c.units[c.finite]))&&pronoun.test(source(c.units[c.subject.start]))&&!!c.object&&transitive.test(c.lemma)&&/^(this|that|these|those|the|my|your|thy|his|her|our|their)$/.test(source(c.units[c.object!.start]))&&!c.units.some(t=>source(t)==="not"&&source(c.units[c.units.indexOf(t)+1])!=="accept");
+const frontable=(c:Clause)=>core(c)&&!/^(do|does|did)$/.test(source(c.units[c.finite]))&&pronoun.test(source(c.units[c.subject.start]))&&!!c.object&&transitive.test(c.lemma)&&/^(this|that|these|those|the|my|your|thy|his|her|our|their)$/.test(source(c.units[c.object!.start]))&&!c.units.some(t=>source(t)==="not");
 function objectFront(c:Clause,invert:boolean){const o=slice(c,c.object!);const remaining=c.units.filter(t=>!o.includes(t));if(!invert)return [...o,...remaining];return [...o,c.units[c.finite],...sub(c),...remaining.filter(t=>t!==c.units[c.finite]&&!sub(c).includes(t))];}
 export const syntaxRules:SyntaxRule[]=[
  {id:"S01",name:"Predicate Fronting",category:"complement",minimum:"shakespearean",priority:70,match:c=>core(c)&&!!c.complement&&c.subject.end===c.finite, rewrite:c=>({units:[...slice(c,c.complement!),c.units[c.finite],...sub(c)],explanation:"Moved the complete predicate adjective before the linking verb and its unchanged subject."})},
