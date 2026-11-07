@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { getPublishedProjects, projects, type Project } from "../lib/projects";
 import { ProjectGrid } from "../components/project-grid";
 const fixture: Project = { id: "fixture", slug: "fixture", title: "Temporary fixture", thumbnail: "/thumbnails/fixture.svg", status: "published" };
-test("production registry is empty", () => assert.equal(projects.length, 0));
+test("first real experience is published", () => { assert.equal(projects.length, 1); assert.equal(getPublishedProjects()[0].slug, "shakespeare-translator"); });
 test("drafts are excluded and publication order is preserved", () => {
  const second = { ...fixture, id: "second", slug: "second" };
  assert.deepEqual(getPublishedProjects([{ ...fixture, status: "draft" }, second, fixture]), [second, fixture]);

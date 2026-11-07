@@ -1,6 +1,6 @@
 # useless verse.
 
-A universe of beautifully useless things. Phase 1 builds the home for future original web experiments. There are no games, fictional projects, accounts, databases, or external API requirements.
+A universe of beautifully useless things. Phase 1 builds the home for future original web experiments. The first published experience is The Bard’s Tongue, a local Shakespearean-style translator. There are no fictional projects, accounts, databases, or external API requirements.
 
 ## Local development
 
@@ -29,10 +29,10 @@ The build exports static pages to `out/`. Run `pnpm start` to preview this produ
 - `app/not-found.tsx`: custom 404, including a working home link.
 - `scripts/generate-social.tsx`, `app/icon.svg`, `app/robots.ts`: original code-generated sharing art, favicon, crawler rules.
 - `components/`: logo, header, footer, shell, project cards, grid, and empty state.
-- `lib/projects.ts`: single ordered, typed project registry. Initially empty.
+- `lib/projects.ts`: single ordered, typed project registry. The first translator experience is published.
 - `lib/site.ts`: editable site copy and optional real origin.
 - `public/branding/`: original reusable brand asset.
-- `public/thumbnails/`: future real project thumbnails; initially empty.
+- `public/thumbnails/`: real project thumbnails, including the translator’s original quill artwork.
 - `tests/`: test-only registry/card fixtures, never part of production data.
 
 ## Add an experience
@@ -71,3 +71,7 @@ This checkout is also configured for private Sites static hosting in `.openai/ho
 ## Design and accessibility
 
 Warm white, near-black and lime, a lowercase wordmark, and an original orbital u. The empty-state illustration is brand artwork, not a playable experience. Semantic landmarks, visible keyboard focus, a skip link, current-page navigation and reduced-motion support are included. All content is readable without client-side scripting. No external images or invented social links are used.
+
+## The Bard’s Tongue
+
+`app/(experiences)/shakespeare-translator/` provides an independent parchment/burgundy interface. `lib/shakespeare/` contains pure, staged tokenization, contraction expansion, bounded grammatical analysis, pronoun/finite-verb agreement, vocabulary/style transforms and reconstruction. No parser service, API, storage or added dependency is required. `docs/shakespearean-language-guide.md` explains historical sources, practical rules, examples and limitations. `tests/shakespeare.test.tsx` tests grammatical targets and regression cases beyond the clickable prompts. All input remains in the browser. Run `pnpm test`, `pnpm lint`, `pnpm typecheck` and `pnpm build` after changes.
