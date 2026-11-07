@@ -6,7 +6,7 @@ const prep=/^(to|for|with|at|from|of|by|on|upon|in|into|without|against|beside|b
 const clause=/^(that|if|when|because|although|though|unless|while|whether|but|and|or|since)$/;
 const complement=/^(think|know|hope|believe|wish|said|say|thought|knew|sure)$/;
 /** A bounded local analyzer; does not pretend to be a full dependency parser. */
-export function grammar(tokens:Token[], address:Address, dramatic:boolean, changes:Change[]) {
+export function grammar(tokens:Token[], address:Address, dramatic:boolean, changes:Change[], roles=new Map<Token,"subject"|"object">(), legacyNegation=true) {
  const significant=tokens.map((t,i)=>({t,i})).filter(x=>x.t.kind!=="space");
  const sentenceStart=(n:number)=>{while(n>0&&!/[.!?;]/.test(significant[n-1].t.text)&&!tokens.slice(significant[n-1].i,significant[n].i).some(t=>t.text.includes("\n")))n--;return n;};
  const sentenceEnd=(n:number)=>{while(n<significant.length-1&&!/[.!?;]/.test(significant[n].t.text))n++;return n;};
@@ -27,9 +27,9 @@ export function grammar(tokens:Token[], address:Address, dramatic:boolean, chang
    const boundary=n===sentenceStart(n)||clause.test(previous)||complement.test(previous)||/^[,:;“"(]$/.test(previous);
    const priorSubject=original.slice(sentenceStart(n),n).some(x=>/^(i|he|she|we|they|it)$/.test(x));
    const object=(isFinite(previous)&&!auxiliaries[previous]&&(!complement.test(previous)||!finite(v)))||prep.test(previous)||(!inversion&&priorSubject&&(!complement.test(previous)||!finite(v)))||v==="to";
-   if(object){replace(t,"thee","Object of a verb or preposition in familiar singular address.",changes);continue;}
+   if(roles.get(t)!=="subject"&&object){replace(t,"thee","Object of a verb or preposition in familiar singular address.",changes);continue;}
    // Preserve coordinated/plural subjects and unknown predicates rather than invent agreement.
-   if(inversion||boundary&&Boolean(finite(v))){
+   if(roles.get(t)==="subject"||inversion||boundary&&Boolean(finite(v))){
     replace(t,"thou","Recognized familiar singular subject.",changes);
     const target=inversion?n-1:j;const verb=word(target);let value=finite(verb);
     if(verb==="were"&&/\b(if|wish)\b/.test(span))value="wert";
@@ -46,7 +46,7 @@ export function grammar(tokens:Token[], address:Address, dramatic:boolean, chang
  }
  // Narrow first-person present negative; no tense or modal rewriting.
  for(let n=0;n<significant.length-3;n++){
-  if(word(n)==="i"&&word(n+1)==="do"&&word(n+2)==="not"&&/^(know|tell|understand|believe|remember)$/.test(word(n+3))){
+  if(legacyNegation&&word(n)==="i"&&word(n+1)==="do"&&word(n+2)==="not"&&/^(know|tell|understand|believe|remember)$/.test(word(n+3))){
    const from=tokens.slice(significant[n+1].i,significant[n+3].i+1).map(t=>t.text).join("");
    significant[n+1].t.text="";significant[n+2].t.text="";
    for(let k=significant[n+1].i+1;k<significant[n+3].i;k++)if(tokens[k].kind==="space")tokens[k].text="";

@@ -26,9 +26,9 @@ const pairs = [
  ['Email you@example.com.','Email you@example.com.'],['Please help me.','Prithee, help me.'],['Do not leave.','Do not leave.'],['You could not know.','Thou couldst not know.'],
  ['You walked home.','Thou walkedst home.'],['This is your hour and your university.','This is thine hour and thy university.'],['You like café music 🎭.','Thou likest café music 🎭.'],
 ];
-for(const [input,expected] of pairs)test(input,()=>assert.equal(translate(input).text,expected));
+for(const [input,expected] of pairs)test(input,()=>assert.equal(translate(input,{syntax:"subtle"}).text,expected));
 const modes:[string,Options,string][]=[['You are kind.',{address:'formal'},'You are kind.'],['You are beautiful.',{style:'dramatic'},'Thou art fair.'],['She loves you.',{style:'dramatic'},'She loveth thee.'],['Please help me.',{style:'dramatic',address:'formal'},'I pray you, help me.']];
-for(const [input,options,expected] of modes)test(JSON.stringify(options)+input,()=>assert.equal(translate(input,options).text,expected));
+for(const [input,options,expected] of modes)test(JSON.stringify(options)+input,()=>assert.equal(translate(input,{...options,syntax:"subtle"}).text,expected));
 test('empty and whitespace',()=>{assert.equal(translate('').text,'');assert.equal(translate(' \n ').text,'');});
 test('length limits count Unicode code points',()=>{assert.throws(()=>translate('x'.repeat(1501)),RangeError);assert.doesNotThrow(()=>translate('🎭'.repeat(1500)));});
 test('safe HTML-like input is data',()=>assert.match(translate('<script>alert(1)</script>').text,/<script>/));
