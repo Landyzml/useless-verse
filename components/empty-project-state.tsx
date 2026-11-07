@@ -1,0 +1,3 @@
+export function EmptyProjectState() {
+ return <div className="empty-state"><div className="empty-illustration" aria-hidden="true"><svg viewBox="0 0 260 160" fill="none"><g className="floating-planet"><circle cx="130" cy="79" r="43" fill="var(--accent)"/><path d="M113 69v16a17 17 0 0 0 34 0V69" stroke="var(--ink)" strokeWidth="5" strokeLinecap="round"/><ellipse cx="130" cy="79" rx="92" ry="22" transform="rotate(-24 130 79)" stroke="var(--ink)" strokeWidth="2.5"/><circle cx="211" cy="42" r="6" fill="var(--ink)"/></g></svg></div><h3>Nothing here. Yet.</h3><p>Something wonderfully pointless is on its way.</p><p className="empty-note">Good things take a little space.</p></div>;
+}
