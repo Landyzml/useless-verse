@@ -4,3 +4,13 @@ out/
 *.tsbuildinfo
 .taste-skill/
 .DS_Store
+
+# Local configuration, credentials and generated logs
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
+.vercel/
+coverage/

@@ -79,3 +79,46 @@ Warm white, near-black and lime, a lowercase wordmark, and an original orbital u
 ### Advanced syntax engine
 
 The Syntax Intensity selector is independent of Classic/Dramatic diction: Subtle preserves the original ordering policy, Shakespearean selects measured licensed movement, and Theatrical permits stronger candidates. `lib/shakespeare/analyzer.ts`, `syntax-types.ts`, `syntax-rules.ts`, `planner.ts` and `validation.ts` implement bounded clause/phrase analysis, candidate generation, deterministic selection and conservation checks. `docs/shakespearean-syntax-rules.md` catalogs 50 researched constructions and their implemented/disabled status. Tests include legacy Subtle regressions, structural positives, semantic guard cases, planner invariants and a held-out evaluation. Unknown words, passive structures, relative attachment and protected technical spans often retain their original order. No new dependency, external parser service or paid API was added.
+
+## GitHub Pages and automatic publishing
+
+Source repository: https://github.com/Landyzml/useless-verse
+
+The app is a static Next.js export: it has no Server Actions, request-time APIs, middleware/proxy, database or server-dependent image optimization. The translator runs entirely in the visitor’s browser. A Node server is required only during development/build, not on GitHub Pages.
+
+`.github/workflows/deploy.yml` runs on every push to `main` and supports **Actions → Deploy Useless Verse to GitHub Pages → Run workflow**. It installs the exact pnpm lockfile on Node 24, runs type checking/lint/tests, builds `out/`, verifies local asset/link references, uploads only the static artifact, and deploys to the `github-pages` environment. Only the deployment job receives `pages: write` and `id-token: write`; no custom token or repository secret is required for normal deployments. Workflow failures are visible in the Actions tab, and a failed check blocks publication.
+
+`actions/configure-pages` supplies the real `base_path` and `base_url`. The build passes them as `NEXT_PUBLIC_BASE_PATH` and `NEXT_PUBLIC_SITE_URL`. Next.js `basePath` prefixes Link navigation and framework assets; `lib/paths.ts` prefixes public thumbnails. The metadata URL includes the repository subpath. Leave the base path empty for root hosting. Configure a future custom domain in **Settings → Pages**, then rerun the workflow so the generated path and metadata match that domain.
+
+To enable Pages manually if necessary:
+
+1. Open https://github.com/Landyzml/useless-verse/settings/pages.
+2. Under **Build and deployment → Source**, select **GitHub Actions**.
+3. Open the repository’s **Actions** tab and run or rerun the deployment workflow.
+4. Use the deployment job’s returned Pages URL to verify the published website.
+
+### Verify project-path hosting locally
+
+```sh
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm lint
+pnpm test
+NEXT_PUBLIC_BASE_PATH=/useless-verse NEXT_PUBLIC_SITE_URL=https://landyzml.github.io/useless-verse pnpm build
+NEXT_PUBLIC_BASE_PATH=/useless-verse node scripts/verify-export.mjs
+NEXT_PUBLIC_BASE_PATH=/useless-verse pnpm start
+```
+
+Open http://127.0.0.1:3000/useless-verse/. Direct access and refresh also work at `/useless-verse/about/` and `/useless-verse/shakespeare-translator/`. The preview server mounts only the configured path, so accidental root asset links fail visibly. The root `404.html` is exported for GitHub Pages to serve with HTTP 404; project route directories contain their own `index.html`. `.nojekyll` preserves Next’s underscore asset directories when applicable.
+
+### Publish future updates
+
+Develop normally, add a real project route/thumbnail/registry entry, and run the checks above. Commit and push to `main`:
+
+```sh
+git add <changed-files>
+git commit -m "Describe the change"
+git push origin main
+```
+
+GitHub Actions builds and publishes automatically. No manual `out/` uploads are needed. Never commit `.env` files, keys, credentials, `node_modules`, `.next` or `out`; `.gitignore` excludes these. `.env.example` contains public configuration placeholders only. The retained `.openai/hosting.json` identifies the older private Sites deployment and is not a credential; it is unused by GitHub Actions and does not change the public Pages deployment.
