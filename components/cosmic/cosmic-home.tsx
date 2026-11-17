@@ -55,7 +55,20 @@ export function CosmicHome({children}: {children: ReactNode}) {
      return [y-upper,y-lower] as [number,number];
     });
     start.current=chooseStartInWindows(previous,windows,Math.random,maximum);
-   } else start.current=chooseStart(previous,Math.random,maximum);
+   } else {
+    // Keep at least one featured star discoverable in the first desktop/tablet view.
+    const obstacles=Array.from(root.current?.querySelectorAll<HTMLElement>("[data-sky-obstacle], .site-header, .project-card, .gallery-heading, .sky-note, .sky-credit, .site-footer")??[]).map(el=>el.getBoundingClientRect());
+    const windows=stars.filter(star=>star.id in featuredStars).flatMap(star=>{
+     const point=project(star,innerWidth,innerHeight,0);
+     let intervals:[number,number][]=[[Math.min(425,innerHeight-100),innerHeight-32]];
+     for(const rect of obstacles){
+      if(point.x<rect.left-24||point.x>rect.right+24)continue;
+      intervals=intervals.flatMap(([a,b])=>[[a,Math.min(b,rect.top-26)],[Math.max(a,rect.bottom+26),b]] as [number,number][]).filter(([a,b])=>b>a);
+     }
+     return intervals.map(([a,b])=>[(point.y-b)/innerHeight,(point.y-a)/innerHeight] as [number,number]);
+    });
+    start.current=windows.length?chooseStartInWindows(previous,windows,Math.random,maximum):chooseStart(previous,Math.random,maximum);
+   }
    try{sessionStorage.setItem(storageKey,String(start.current));}catch{}
   }
   const previousRestoration=history.scrollRestoration;
