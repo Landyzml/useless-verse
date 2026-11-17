@@ -2,7 +2,9 @@
 
 **Live website: [useless verse.](https://landyzml.github.io/useless-verse/)**
 
-A universe of beautifully useless things. Phase 1 builds the home for future original web experiments. The first published experience is The Bard’s Tongue, a local Shakespearean-style translator. There are no fictional projects, accounts, databases, or external API requirements.
+A universe of beautifully useless things. Explore a quiet celestial homepage with 291 real catalogue stars, 24 interactive star exhibits, and 100 randomized quotes. The first published experiment is The Bard’s Tongue, a local Shakespearean-style translator.
+
+The sky uses a locally bundled HYG 4.1 subset and a fixed celestial projection, with a fresh viewing region each visit. See [astronomical sources, licences, projection, and image credits](docs/star-data-sources.md). No accounts, astronomy API calls, or location access are required.
 
 ## Local development
 

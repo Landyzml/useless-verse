@@ -1,0 +1,10 @@
+{
+  "catalogue": "HYG 4.1",
+  "source": "https://github.com/astronexus/HYG-Database/blob/main/hyg/CURRENT/hygdata_v41.csv",
+  "gitBlob": "ba2dec4eb0f6768914c7fc1051258100214ddf84",
+  "sha256": "d9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd",
+  "license": "CC BY-SA 4.0",
+  "selection": "id > 0 and mag <= 3.5",
+  "stars": 291,
+  "featured": 24
+}
