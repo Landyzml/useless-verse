@@ -6,7 +6,7 @@ A universe of beautifully useless things. Explore a quiet celestial homepage wit
 
 The sky uses a locally bundled HYG 4.1 subset and a fixed celestial projection, with a fresh viewing region each visit. See [astronomical sources, licences, projection, and image credits](docs/star-data-sources.md). No accounts, astronomy API calls, or location access are required.
 
-At the bottom, a ringed black hole offers a fictional cosmic finale: activate it to collapse the sky and reveal a light homepage with a white dwarf. Refresh restores the dark sky. Keyboard, touch and reduced-motion versions are supported; see [the interaction notes](docs/cosmic-finale.md).
+At the bottom, a ringed black hole offers a fictional cosmic finale: activate it to collapse the sky and reveal a light homepage with a white dwarf. Activate the white dwarf to recreate the same dark sky and repeat the cycle. Refresh starts a fresh dark visit. Keyboard, touch and reduced-motion versions are supported; see [the interaction notes](docs/cosmic-finale.md).
 
 ## Local development
 

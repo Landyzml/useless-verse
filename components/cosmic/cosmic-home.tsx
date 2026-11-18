@@ -12,8 +12,11 @@ const storageKey = "useless-verse:previous-sky-start";
 function contentBounds(container: HTMLElement) {
  const root=container.getBoundingClientRect();
  return Array.from(container.querySelectorAll<HTMLElement>(".site-header, h1, .tagline, .homepage-quote, .gallery-heading, .project-card, .sky-note, .sky-credit, .site-footer, .finale-copy, .singularity")).map(el=>{
-  const rect=el.getBoundingClientRect();
-  return {left:rect.left-root.left,right:rect.right-root.left,top:rect.top-root.top,bottom:rect.bottom-root.top};
+  const rect=el.getBoundingClientRect(),transform=getComputedStyle(el).transform;
+  const shift=transform==="none"?null:new DOMMatrixReadOnly(transform);
+  // Entrance translations must not change featured-star eligibility between cycles.
+  const x=shift?.m41??0,y=shift?.m42??0;
+  return {left:rect.left-root.left-x,right:rect.right-root.left-x,top:rect.top-root.top-y,bottom:rect.bottom-root.top-y};
  });
 }
 export function CosmicHome({children}: {children: ReactNode}) {
@@ -24,6 +27,8 @@ export function CosmicHome({children}: {children: ReactNode}) {
  const initialized = useRef(false);
  const suppressFocus = useRef(false);
  const scenePoints=useRef<SkyPoint[]>([]);
+ const paintSky=useRef<(()=>void)|null>(null);
+ const restoreSky=useCallback(()=>paintSky.current?.(),[]);
  const start = useRef(0);
  const projectionHeight = useRef(0);
  const pinned = useRef<number | null>(null);
@@ -38,7 +43,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
  const closeAndFocus = useCallback((id:number) => {
   suppressFocus.current=true;close();buttons.current.get(id)?.focus();queueMicrotask(()=>{suppressFocus.current=false;});
  }, [close]);
- const {phase,phaseRef,activate}=useCosmicTransformation(root,canvas,scenePoints,close);
+ const {phase,phaseRef,activate}=useCosmicTransformation(root,canvas,scenePoints,close,restoreSky);
  const open = (id:number, pin=false) => {
   if(phaseRef.current!=="dark")return;
   if(closeTimer.current) clearTimeout(closeTimer.current);
@@ -70,8 +75,8 @@ export function CosmicHome({children}: {children: ReactNode}) {
    const maximum=maxStartForDocument(height,container.getBoundingClientRect().height);
    const title=container.querySelector(".intro")?.getBoundingClientRect();
    const titleEnd=(title?.bottom??height*.5)+scrollY-rootTop;
-   const heading=container.querySelector("h1")?.getBoundingClientRect();
-   const titleStart=Math.min(titleEnd,(heading?.bottom??titleEnd*.5)+scrollY-rootTop);
+   const heading=container.querySelector<HTMLElement>("h1");
+   const titleStart=Math.min(titleEnd,heading?heading.offsetTop+heading.offsetHeight:titleEnd*.5);
    const lookout=container.querySelector(".sky-lookout")?.getBoundingClientRect();
    const lower=innerWidth<=599&&lookout?lookout.top+scrollY-rootTop+125:titleStart+(titleEnd-titleStart)*.4;
    const upper=innerWidth<=599&&lookout?lookout.bottom+scrollY-rootTop-28:height-48;
@@ -94,7 +99,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
   let frame=0,cardFrame=0;
   const paint=()=>{
    frame=0;
-   const element=canvas.current;if(!element||phaseRef.current!=="dark")return;
+   const element=canvas.current;if(!element||(phaseRef.current!=="dark"&&phaseRef.current!=="expanding"))return;
    const width=container.clientWidth,height=projectionHeight.current;
    const documentHeight=container.getBoundingClientRect().height,dpr=Math.min(devicePixelRatio||1,2);
    element.style.width=`${width}px`;element.style.height=`${documentHeight}px`;
@@ -107,8 +112,8 @@ export function CosmicHome({children}: {children: ReactNode}) {
    const rootTop=container.getBoundingClientRect().top;
    const title=container.querySelector(".intro")?.getBoundingClientRect();
    const titleEnd=(title?.bottom??height*.5)-rootTop;
-   const heading=container.querySelector("h1")?.getBoundingClientRect();
-   const titleStart=Math.min(titleEnd,(heading?.bottom??titleEnd*.5)-rootTop);
+   const heading=container.querySelector<HTMLElement>("h1");
+   const titleStart=Math.min(titleEnd,heading?heading.offsetTop+heading.offsetHeight:titleEnd*.5);
    const {edge}=starSpacing(width);
    const content=contentBounds(container);
    container.style.setProperty("--cosmic-content-height",`${container.querySelector(".cosmic-foreground")!.getBoundingClientRect().height}px`);
@@ -143,6 +148,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
    else updateCard();
    setReady(true);
   };
+  paintSky.current=paint;
   const schedule=()=>{if(!frame)frame=requestAnimationFrame(paint);};
   // Scrolling does not repaint or reposition the sky; only an open viewport card needs updating.
   const onScroll=()=>{if(activeRef.current!==null&&!cardFrame)cardFrame=requestAnimationFrame(()=>{cardFrame=0;updateCard();});};
@@ -156,7 +162,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
   window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",schedule);
   document.addEventListener("pointerdown",outside);document.addEventListener("keydown",escape);
   schedule();
-  return()=>{history.scrollRestoration=previousRestoration;cancelAnimationFrame(frame);cancelAnimationFrame(cardFrame);resizeObserver.disconnect();window.removeEventListener("scroll",onScroll);window.removeEventListener("resize",schedule);document.removeEventListener("pointerdown",outside);document.removeEventListener("keydown",escape);if(closeTimer.current)clearTimeout(closeTimer.current);};
+  return()=>{paintSky.current=null;history.scrollRestoration=previousRestoration;cancelAnimationFrame(frame);cancelAnimationFrame(cardFrame);resizeObserver.disconnect();window.removeEventListener("scroll",onScroll);window.removeEventListener("resize",schedule);document.removeEventListener("pointerdown",outside);document.removeEventListener("keydown",escape);if(closeTimer.current)clearTimeout(closeTimer.current);};
  },[close,closeAndFocus,updateCard,phaseRef]);
  useEffect(()=>{
   if(active===null)return;

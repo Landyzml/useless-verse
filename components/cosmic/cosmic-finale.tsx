@@ -1,18 +1,20 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-export type CosmicPhase = "dark" | "collapsing" | "expanding" | "light";
+import { cosmicDestination } from "./use-cosmic-transformation";
+export type CosmicPhase = "dark" | "collapsing" | "revealing" | "light" | "charging" | "expanding";
 export function CosmicFinale({phase,onActivate}:{phase:CosmicPhase;onActivate:()=>void}) {
  const section=useRef<HTMLElement>(null);
  const [inView,setInView]=useState(false);
- const reborn=phase==="expanding"||phase==="light";
+ const reborn=phase==="revealing"||phase==="light"||phase==="charging";
+ const busy=cosmicDestination(phase)===null;
  useEffect(()=>{
   const observer=new IntersectionObserver(([entry])=>setInView(entry.isIntersecting));
   if(section.current)observer.observe(section.current);
   return()=>observer.disconnect();
  },[]);
- return <section ref={section} className={`cosmic-finale ${inView?"is-in-view":""}`} aria-labelledby="finale-title">
-  <div className="finale-copy"><h2 id="finale-title">{reborn?"Something from nothing.":"Every universe has an ending."}</h2><p>{reborn?"A quieter universe. The same curious little things.":"Some endings are worth a little curiosity."}</p></div>
-  <button className="singularity" type="button" onClick={onActivate} disabled={phase!=="dark"} aria-label={reborn?"White dwarf — the universe has been reborn":"Enter the black hole and transform this universe"} aria-describedby="finale-caption">
+ return <section ref={section} className={`cosmic-finale ${inView?"is-in-view":""}`} aria-labelledby="finale-title" aria-busy={busy}>
+  <div className="finale-copy"><h2 id="finale-title">{reborn?"Something from nothing.":"Every universe has an ending."}</h2><p>{reborn?"A quieter universe. Ready to begin again.":"Some endings are worth a little curiosity."}</p></div>
+  <button className="singularity" type="button" onClick={onActivate} disabled={busy} aria-label={reborn?"Activate the white dwarf to recreate the dark universe":"Enter the black hole and transform this universe"} aria-describedby="finale-caption">
    <span className="gravity-center" data-gravity-center aria-hidden="true"/>
    <svg className="black-hole" viewBox="0 0 800 460" fill="none" aria-hidden="true">
     <defs>
@@ -37,9 +39,9 @@ export function CosmicFinale({phase,onActivate}:{phase:CosmicPhase;onActivate:()
    </svg>
    <span className="white-dwarf" aria-hidden="true"><span/></span>
   </button>
-  <p id="finale-caption" className="finale-caption">{phase==="dark"?"Touch the event horizon":phase==="collapsing"?"Letting the universe go…":phase==="expanding"?"A new beginning…":"A small, impossible rebirth."}</p>
+  <p id="finale-caption" className="finale-caption">{phase==="dark"?"Touch the event horizon":phase==="collapsing"?"Letting the universe go…":phase==="charging"?"A universe waiting to happen…":phase==="expanding"?"Let there be a universe…":phase==="revealing"?"A new beginning…":"Touch the white dwarf"}</p>
   <p className="finale-footnote">A little cosmic fiction.</p>
-  <p className="finale-status" role="status" aria-live="polite">{phase==="light"?"The universe has transformed. The homepage is now in its light theme. Refresh to explore the night sky again.":""}</p>
+  <p className="finale-status" role="status" aria-live="polite">{phase==="light"?"The universe has transformed. The homepage is now in its light theme. Activate the white dwarf to recreate the same night sky.":phase==="dark"?"The dark universe is ready. Activate the black hole to begin the cycle.":""}</p>
   <noscript><p className="finale-noscript">Enable JavaScript to wake this little universe.</p></noscript>
  </section>;
 }
