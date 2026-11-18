@@ -3,8 +3,9 @@ import { resolve, join } from 'node:path';
 import assert from 'node:assert/strict';
 const root = resolve('out');
 const prefix = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-const required = ['index.html','about/index.html','shakespeare-translator/index.html','404.html','.nojekyll'];
+const required = ['index.html','shakespeare-translator/index.html','404.html','.nojekyll'];
 for (const path of required) assert.ok((await stat(join(root,path))).isFile(), `Missing export: ${path}`);
+assert.equal(await stat(join(root,'about')).catch(()=>null),null,'Removed About route must not be exported');
 async function files(dir) { const entries=await readdir(dir,{withFileTypes:true}); return (await Promise.all(entries.map(e=>e.isDirectory()?files(join(dir,e.name)):[join(dir,e.name)]))).flat(); }
 const htmlFiles=(await files(root)).filter(f=>f.endsWith('.html'));
 let checked=0;

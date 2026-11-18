@@ -29,7 +29,7 @@ The build exports static pages to `out/`. Run `pnpm start` to preview this produ
 ## Structure
 
 - `app/layout.tsx`: minimal root, fonts, global tokens, SEO and viewport. It deliberately contains no site header or footer.
-- `app/(site)/`: homepage and About page. They use `SiteShell` for shared navigation/footer, with explicit current-page state and no client JavaScript for navigation highlighting.
+- `app/(site)/`: homepage. It uses `SiteShell` for shared navigation/footer, with explicit current-page state and no client JavaScript for navigation highlighting.
 - `app/not-found.tsx`: custom 404, including a working home link.
 - `scripts/generate-social.tsx`, `app/icon.svg`, `app/robots.ts`: original code-generated sharing art, favicon, crawler rules.
 - `components/`: logo, header, footer, shell, project cards, grid, and empty state.
@@ -113,7 +113,7 @@ NEXT_PUBLIC_BASE_PATH=/useless-verse node scripts/verify-export.mjs
 NEXT_PUBLIC_BASE_PATH=/useless-verse pnpm start
 ```
 
-Open http://127.0.0.1:3000/useless-verse/. Direct access and refresh also work at `/useless-verse/about/` and `/useless-verse/shakespeare-translator/`. The preview server mounts only the configured path, so accidental root asset links fail visibly. The root `404.html` is exported for GitHub Pages to serve with HTTP 404; project route directories contain their own `index.html`. `.nojekyll` preserves Next’s underscore asset directories when applicable.
+Open http://127.0.0.1:3000/useless-verse/. Direct access and refresh also work at `/useless-verse/shakespeare-translator/`. The preview server mounts only the configured path, so accidental root asset links fail visibly. The root `404.html` is exported for GitHub Pages to serve with HTTP 404; project route directories contain their own `index.html`. `.nojekyll` preserves Next’s underscore asset directories when applicable.
 
 ### Publish future updates
 
