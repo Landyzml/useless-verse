@@ -26,6 +26,17 @@ export function titleStarOpacity(worldY: number, start: number, end: number) {
 export function project(star: Pick<Star, 'ra' | 'dec'>, width: number, height: number, offset: number) {
  return { x: 32 + (90 - star.dec) / 180 * (width - 64), y: (SKY_TOP_PADDING + star.ra / 24 * 5 - offset) * height };
 }
+export interface ContentBounds { left: number; right: number; top: number; bottom: number }
+export function starSpacing(width: number) {
+ const edge=width<600?24:width<960?32:48;
+ return {edge,featuredEdge:Math.max(36,edge),contentGap:width<600?32:width<960?40:48};
+}
+/** Only the featured treatment is withheld; the same catalogue point remains on canvas. */
+export function hasFeaturedStarSpace(x: number,y: number,width: number,content: readonly ContentBounds[]) {
+ const {featuredEdge,contentGap}=starSpacing(width);
+ return x>=featuredEdge&&x<=width-featuredEdge&&content.every(rect=>
+  Math.hypot(Math.max(rect.left-x,0,x-rect.right),Math.max(rect.top-y,0,y-rect.bottom))>=contentGap);
+}
 export function starAppearance(magnitude: number, spectral: string) {
  const brightness = Math.min(1, Math.max(.12, Math.pow(10, -.16 * (magnitude + 1.46))));
  const colors: Record<string, string> = { O: '#c3d6fa', B: '#d3dffc', A: '#e9edff', F: '#f4f1df', G: '#f3e6c8', K: '#efc9a0', M: '#e9b19b' };

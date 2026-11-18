@@ -3,10 +3,17 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Reac
 import Image from "next/image";
 import { stars } from "@/data/stars";
 import { featuredStars } from "@/data/featured-stars";
-import { cardPosition, chooseStartInWindows, maxStartForDocument, project, titleStarOpacity, starAppearance, type Star } from "@/lib/astronomy/sky";
+import { cardPosition, chooseStartInWindows, maxStartForDocument, project, titleStarOpacity, starAppearance, starSpacing, hasFeaturedStarSpace, type Star } from "@/lib/astronomy/sky";
 import { publicAsset } from "@/lib/paths";
 type Point = {star: Star; x: number; y: number; opacity: number};
 const storageKey = "useless-verse:previous-sky-start";
+function contentBounds(container: HTMLElement) {
+ const root=container.getBoundingClientRect();
+ return Array.from(container.querySelectorAll<HTMLElement>(".site-header, h1, .tagline, .homepage-quote, .gallery-heading, .project-card, .sky-note, .sky-credit, .site-footer")).map(el=>{
+  const rect=el.getBoundingClientRect();
+  return {left:rect.left-root.left,right:rect.right-root.left,top:rect.top-root.top,bottom:rect.bottom-root.top};
+ });
+}
 export function CosmicHome({children}: {children: ReactNode}) {
  const canvas = useRef<HTMLCanvasElement>(null);
  const root = useRef<HTMLDivElement>(null);
@@ -63,9 +70,16 @@ export function CosmicHome({children}: {children: ReactNode}) {
    const lookout=container.querySelector(".sky-lookout")?.getBoundingClientRect();
    const lower=innerWidth<=599&&lookout?lookout.top+scrollY-rootTop+125:titleStart+(titleEnd-titleStart)*.4;
    const upper=innerWidth<=599&&lookout?lookout.bottom+scrollY-rootTop-28:height-48;
-   const windows=stars.filter(star=>star.id in featuredStars).map(star=>{
+   const {featuredEdge,contentGap}=starSpacing(width),content=contentBounds(container);
+   const windows=stars.filter(star=>star.id in featuredStars).flatMap(star=>{
     const point=project(star,width,height,0);
-    return [(point.y-upper)/height,(point.y-lower)/height] as [number,number];
+    if(point.x<featuredEdge||point.x>width-featuredEdge)return [];
+    let ranges:[number,number][]=[[lower,upper]];
+    for(const rect of content){
+     if(point.x<rect.left-contentGap||point.x>rect.right+contentGap)continue;
+     ranges=ranges.flatMap(([a,b])=>[[a,Math.min(b,rect.top-contentGap)],[Math.max(a,rect.bottom+contentGap),b]] as [number,number][]).filter(([a,b])=>b>a);
+    }
+    return ranges.map(([a,b])=>[(point.y-b)/height,(point.y-a)/height] as [number,number]);
    });
    start.current=chooseStartInWindows(previous,windows,Math.random,maximum);
    try{sessionStorage.setItem(storageKey,String(start.current));}catch{}
@@ -90,16 +104,18 @@ export function CosmicHome({children}: {children: ReactNode}) {
    const titleEnd=(title?.bottom??height*.5)-rootTop;
    const heading=container.querySelector("h1")?.getBoundingClientRect();
    const titleStart=Math.min(titleEnd,(heading?.bottom??titleEnd*.5)-rootTop);
+   const {edge}=starSpacing(width);
+   const content=contentBounds(container);
    const next:Point[]=[];
    for(const star of stars){
     // Local document coordinates: the browser scrolls the canvas and buttons together.
     const {x,y}=project(star,width,height,start.current);
-    if(x<12||x>width-12||y<0||y>documentHeight)continue;
+    if(x<edge||x>width-edge||y<0||y>documentHeight)continue;
     const fade=titleStarOpacity(y,titleStart,titleEnd);
     if(fade<=.03)continue;
     const feature=star.id in featuredStars;
     const a=starAppearance(star.magnitude,star.spectral);
-    if(feature&&fade>.35&&x>=24&&x<=width-24&&y>=24&&y<=documentHeight-48){
+    if(feature&&fade>.35&&y>=24&&y<=documentHeight-48&&hasFeaturedStarSpace(x,y,width,content)){
      // Overlapping native hit targets retain the brighter star at its true position.
      const collision=next.findIndex(p=>Math.hypot(p.x-x,p.y-y)<48);
      if(collision<0)next.push({star,x,y,opacity:fade});

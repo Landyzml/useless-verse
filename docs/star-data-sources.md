@@ -50,6 +50,8 @@ The projection’s reference viewport height is fixed for the visit. Mobile addr
 
 Canvas and DOM targets share `project()` and the same local document offset. Closely overlapping featured hit targets are resolved in favour of the brighter star, leaving the other as a canvas point at its true coordinates. Open information cards anchor to the button’s actual viewport rectangle; only an open card needs a coalesced scroll update. It closes if its anchor leaves the visible viewport. Listeners, observers and animation frames clean up on unmount.
 
+Featured-star spacing uses 24/32/48 px horizontal crop margins on mobile/tablet/desktop. Featured centres additionally keep at least 36 px from either side and 32/40/48 px from major content boundaries, using the shortest point-to-rectangle distance. A star that lacks this room stays at its exact projected position as an ordinary canvas point, without its featured halo/label/target. Faint stars behind text are neither erased nor dimmed. The existing random crop sampler also prefers these eligible viewing intervals, retaining an accessible featured star. The eligibility check runs only with initialization/layout paints; it adds no scrolling work or masks.
+
 ## Appearance and performance
 
 Magnitude scales intensity nonlinearly: `10^(−0.16 × (magnitude + 1.46))`, clamped to 0.12–1, then mapped to restrained radius/opacity. This is an artistic compression of the magnitude range, not calibrated photometry. Smaller magnitude remains brighter. Approximate, desaturated colours follow O/B/A/F/G/K/M spectral classes; unknown classes are neutral. CSS glow is illustrative, not a measured stellar angular size. Atmospheric twinkle is a slow decorative effect on featured stars only, not variable-star photometry.
