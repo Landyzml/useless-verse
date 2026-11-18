@@ -4,12 +4,14 @@ import Image from "next/image";
 import { stars } from "@/data/stars";
 import { featuredStars } from "@/data/featured-stars";
 import { cardPosition, chooseStartInWindows, maxStartForDocument, project, titleStarOpacity, starAppearance, starSpacing, hasFeaturedStarSpace, type Star } from "@/lib/astronomy/sky";
+import { CosmicFinale } from "./cosmic-finale";
+import { useCosmicTransformation, type SkyPoint } from "./use-cosmic-transformation";
 import { publicAsset } from "@/lib/paths";
 type Point = {star: Star; x: number; y: number; opacity: number};
 const storageKey = "useless-verse:previous-sky-start";
 function contentBounds(container: HTMLElement) {
  const root=container.getBoundingClientRect();
- return Array.from(container.querySelectorAll<HTMLElement>(".site-header, h1, .tagline, .homepage-quote, .gallery-heading, .project-card, .sky-note, .sky-credit, .site-footer")).map(el=>{
+ return Array.from(container.querySelectorAll<HTMLElement>(".site-header, h1, .tagline, .homepage-quote, .gallery-heading, .project-card, .sky-note, .sky-credit, .site-footer, .finale-copy, .singularity")).map(el=>{
   const rect=el.getBoundingClientRect();
   return {left:rect.left-root.left,right:rect.right-root.left,top:rect.top-root.top,bottom:rect.bottom-root.top};
  });
@@ -21,6 +23,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
  const buttons = useRef(new Map<number, HTMLButtonElement>());
  const initialized = useRef(false);
  const suppressFocus = useRef(false);
+ const scenePoints=useRef<SkyPoint[]>([]);
  const start = useRef(0);
  const projectionHeight = useRef(0);
  const pinned = useRef<number | null>(null);
@@ -35,7 +38,9 @@ export function CosmicHome({children}: {children: ReactNode}) {
  const closeAndFocus = useCallback((id:number) => {
   suppressFocus.current=true;close();buttons.current.get(id)?.focus();queueMicrotask(()=>{suppressFocus.current=false;});
  }, [close]);
+ const {phase,phaseRef,activate}=useCosmicTransformation(root,canvas,scenePoints,close);
  const open = (id:number, pin=false) => {
+  if(phaseRef.current!=="dark")return;
   if(closeTimer.current) clearTimeout(closeTimer.current);
   if(pinned.current!==null && !pin) return;
   if(pin) {pinned.current=id;setPinned(true);}
@@ -89,7 +94,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
   let frame=0,cardFrame=0;
   const paint=()=>{
    frame=0;
-   const element=canvas.current;if(!element)return;
+   const element=canvas.current;if(!element||phaseRef.current!=="dark")return;
    const width=container.clientWidth,height=projectionHeight.current;
    const documentHeight=container.getBoundingClientRect().height,dpr=Math.min(devicePixelRatio||1,2);
    element.style.width=`${width}px`;element.style.height=`${documentHeight}px`;
@@ -106,7 +111,9 @@ export function CosmicHome({children}: {children: ReactNode}) {
    const titleStart=Math.min(titleEnd,(heading?.bottom??titleEnd*.5)-rootTop);
    const {edge}=starSpacing(width);
    const content=contentBounds(container);
+   container.style.setProperty("--cosmic-content-height",`${container.querySelector(".cosmic-foreground")!.getBoundingClientRect().height}px`);
    const next:Point[]=[];
+   const scene:SkyPoint[]=[];
    for(const star of stars){
     // Local document coordinates: the browser scrolls the canvas and buttons together.
     const {x,y}=project(star,width,height,start.current);
@@ -115,6 +122,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
     if(fade<=.03)continue;
     const feature=star.id in featuredStars;
     const a=starAppearance(star.magnitude,star.spectral);
+    scene.push({x,y,radius:a.radius,color:a.color,opacity:a.opacity*fade});
     if(feature&&fade>.35&&y>=24&&y<=documentHeight-48&&hasFeaturedStarSpace(x,y,width,content)){
      // Overlapping native hit targets retain the brighter star at its true position.
      const collision=next.findIndex(p=>Math.hypot(p.x-x,p.y-y)<48);
@@ -128,6 +136,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
      ctx.fillStyle=a.color;ctx.globalAlpha=a.opacity*fade;ctx.beginPath();ctx.arc(x,y,a.radius,0,Math.PI*2);ctx.fill();
     }
    }
+   scenePoints.current=scene;
    setVisible(next);
    for(const p of next){const button=buttons.current.get(p.star.id);if(button){button.style.left=`${p.x}px`;button.style.top=`${p.y}px`;button.style.opacity=String(p.opacity);}}
    if(activeRef.current!==null&&!next.some(p=>p.star.id===activeRef.current))close();
@@ -148,7 +157,7 @@ export function CosmicHome({children}: {children: ReactNode}) {
   document.addEventListener("pointerdown",outside);document.addEventListener("keydown",escape);
   schedule();
   return()=>{history.scrollRestoration=previousRestoration;cancelAnimationFrame(frame);cancelAnimationFrame(cardFrame);resizeObserver.disconnect();window.removeEventListener("scroll",onScroll);window.removeEventListener("resize",schedule);document.removeEventListener("pointerdown",outside);document.removeEventListener("keydown",escape);if(closeTimer.current)clearTimeout(closeTimer.current);};
- },[close,closeAndFocus,updateCard]);
+ },[close,closeAndFocus,updateCard,phaseRef]);
  useEffect(()=>{
   if(active===null)return;
   const frame=requestAnimationFrame(updateCard);
@@ -156,12 +165,15 @@ export function CosmicHome({children}: {children: ReactNode}) {
  },[active,updateCard]);
  const selected=stars.find(star=>star.id===active);
  const detail=selected?featuredStars[selected.id]:null;
- return <div className="cosmic-home" ref={root}>
-  <div className={`cosmic-sky ${ready?"is-ready":""}`} aria-label="Artistic celestial panorama">
+ return <div className="cosmic-home" data-phase={phase} ref={root}>
+  <div className="cosmic-atmosphere" aria-hidden="true"/>
+  <div className={`cosmic-sky ${ready?"is-ready":""}`} aria-label="Artistic celestial panorama" aria-hidden={phase!=="dark"}>
    <canvas ref={canvas} aria-hidden="true"/>
-   {visible.map(({star,x,y,opacity})=>{const a=starAppearance(star.magnitude,star.spectral);return <button key={star.id} type="button" className={`featured-star ${active===star.id?"is-active":""}`} ref={el=>{if(el)buttons.current.set(star.id,el);else buttons.current.delete(star.id);}} style={{left:x,top:y,opacity,"--star-color":a.color,"--star-delay":`${star.id%9}s`} as CSSProperties} aria-label={`Explore ${star.name}`} aria-expanded={active===star.id} aria-controls={active===star.id?"star-information":undefined} onPointerEnter={e=>{if(e.pointerType!=="touch")open(star.id);}} onPointerLeave={leave} onPointerUp={e=>{if(e.pointerType==="touch")open(star.id,true);}} onFocus={()=>{if(!suppressFocus.current)open(star.id);}} onBlur={leave} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open(star.id,true);}}} onClick={()=>open(star.id,true)}><span className="star-halo"/><span className="star-core"/><span className="star-name">{star.name}</span></button>;})}
+   {visible.map(({star,x,y,opacity})=>{const a=starAppearance(star.magnitude,star.spectral);return <button key={star.id} type="button" disabled={phase!=="dark"} className={`featured-star ${active===star.id?"is-active":""}`} ref={el=>{if(el)buttons.current.set(star.id,el);else buttons.current.delete(star.id);}} style={{left:x,top:y,opacity,"--star-color":a.color,"--star-delay":`${star.id%9}s`} as CSSProperties} aria-label={`Explore ${star.name}`} aria-expanded={active===star.id} aria-controls={active===star.id?"star-information":undefined} onPointerEnter={e=>{if(e.pointerType!=="touch")open(star.id);}} onPointerLeave={leave} onPointerUp={e=>{if(e.pointerType==="touch")open(star.id,true);}} onFocus={()=>{if(!suppressFocus.current)open(star.id);}} onBlur={leave} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open(star.id,true);}}} onClick={()=>open(star.id,true)}><span className="star-halo"/><span className="star-core"/><span className="star-name">{star.name}</span></button>;})}
   </div>
   <div className="cosmic-foreground">{children}</div>
+  <CosmicFinale phase={phase} onActivate={activate}/>
+  <svg className="cosmic-shockwave" aria-hidden="true"><circle r="0" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>
   {selected&&detail&&<aside id="star-information" className="star-card" ref={card} style={{left:12,top:12}} aria-label={`${selected.name} star information`} onPointerEnter={()=>{hoveredCard.current=true;if(closeTimer.current)clearTimeout(closeTimer.current);}} onPointerLeave={()=>{hoveredCard.current=false;leave();}} onFocus={()=>{if(closeTimer.current)clearTimeout(closeTimer.current);}} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))leave();}}>
    <header><div><h2>{selected.name}</h2><p>{detail.designation}</p></div><button type="button" aria-label="Close star information" onClick={()=>closeAndFocus(selected.id)}>×</button></header>
    <figure><Image src={publicAsset(detail.image??`/stars/${selected.id}.svg`)} alt={detail.image?detail.imageAlt??selected.name:`Catalogue illustration showing ${selected.name} and its real neighbouring stars`} width={640} height={280} unoptimized/><figcaption>{detail.image?"Observation · ":"Catalogue illustration · "}<a href={detail.imageSource??"https://github.com/astronexus/HYG-Database"} target="_blank" rel="noreferrer">{detail.credit??"Useless Verse / HYG · CC BY-SA 4.0"}</a></figcaption></figure>

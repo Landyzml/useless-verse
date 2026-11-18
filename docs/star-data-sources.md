@@ -64,3 +64,7 @@ Canvas resolution caps device pixel ratio at 2. Painting covers the actual docum
 2. **Other 23 cards**: original Useless Verse **catalogue illustrations**, not photographs, under CC BY-SA 4.0 with HYG attribution linked in each caption. Each locally bundled SVG marks the actual selected star at the centre and draws only real HYG neighbours with magnitude ≤6 in a local crop. North is up, east left, using `x = 320 − wrappedΔRAdegrees × cos(decCentre) × 16`, `y = 140 − Δdec × 16`. Scale 16 px/degree; pole distortion remains a limitation. Radius compresses magnitude. No stellar surface detail, binary components or nebulosity is fabricated. These consistent lightweight finding charts avoid substituting unrelated telescope pictures for individual stars.
 
 No third-party hotlinked images, astronomy APIs, live location requests or massive catalogue downloads occur when visitors use the page.
+
+## Fictional cosmic finale
+
+The bottom black hole and its white-dwarf ending are original stylized artwork, not additional catalogue entries. Activating the finale briefly animates a snapshot of the real sky points into the object; ordinary coordinates and 1:1 scrolling remain unchanged. The resulting light theme intentionally contains no sky stars. See [cosmic-finale.md](cosmic-finale.md) for the animation lifecycle and reduced-motion fallback.
