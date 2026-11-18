@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { stars } from "../data/stars";
 import { featuredStars } from "../data/featured-stars";
-import { cardPosition, chooseStart, chooseStartInWindows, MAX_START, MIN_SEPARATION, project, skyOffset, starAppearance } from "../lib/astronomy/sky";
+import { cardPosition, chooseStart, chooseStartInWindows, MAX_START, MIN_SEPARATION, project, maxStartForDocument, titleStarOpacity, starAppearance } from "../lib/astronomy/sky";
 test("compact HYG subset has unique catalogue identities and valid real sky coordinates",()=>{
  assert.equal(stars.length,291);
  assert.equal(new Set(stars.map(s=>s.id)).size,291);
@@ -37,7 +37,7 @@ test("projection and scroll preserve coordinate relationships without wrapping o
  const sirius=stars.find(s=>s.name==="Sirius")!;
  const p=project(sirius,1000,800,1),q=project(sirius,1000,800,2);
  assert.equal(p.x,q.x);assert.equal(p.y-q.y,800);
- assert.equal(skyOffset(MAX_START,1),4.8);assert.equal(skyOffset(1,2),1.8);assert.equal(skyOffset(1,1,true),1);
+
 });
 test("magnitude mapping is monotonic and clipped; spectral colours differ",()=>{
  assert.ok(starAppearance(-1.44,"A").radius>starAppearance(3.5,"A").radius);
@@ -59,4 +59,19 @@ test("mobile window sampling stays in real viewing intervals and avoids the prev
   assert.ok(Math.abs(next-.8)>=MIN_SEPARATION);
  }
  assert.equal(chooseStartInWindows(null,[],()=>.5),MAX_START/2);
+});
+
+test("initial crop reserves the document height without accelerating or freezing scrolling",()=>{
+ for(const viewport of [600,844,900])for(const documentHeight of [viewport,viewport*1.5,viewport*2.5]){
+  const maximum=maxStartForDocument(viewport,documentHeight);
+  assert.ok(maximum>=0);
+  assert.ok((5.8-maximum)*viewport>=documentHeight-1e-8);
+ }
+ assert.equal(maxStartForDocument(800,10000),0);
+});
+test("title fade is complete before all gallery and footer content",()=>{
+ assert.equal(titleStarOpacity(200,300,500),0);
+ assert.equal(titleStarOpacity(400,300,500),.5);
+ for(const y of [500,550,800,1500])assert.equal(titleStarOpacity(y,300,500),1);
+ assert.equal(titleStarOpacity(500,500,500),1);
 });

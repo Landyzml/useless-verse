@@ -4,8 +4,7 @@ export interface Star {
 }
 export const PANORAMA_HEIGHT = 5.8;
 export const SKY_TOP_PADDING = .8;
-export const SCROLL_TRAVEL = .8;
-export const MAX_START = PANORAMA_HEIGHT - 1 - SCROLL_TRAVEL;
+export const MAX_START = PANORAMA_HEIGHT - 1;
 export const MIN_SEPARATION = .65;
 /** Uniformly sample the allowed intervals, excluding a neighbourhood of the previous start. */
 export function chooseStart(previous: number | null, random = Math.random, maximum = MAX_START): number {
@@ -15,8 +14,13 @@ export function chooseStart(previous: number | null, random = Math.random, maxim
  const sample = random() * (left + maximum - right);
  return sample < left ? sample : right + sample - left;
 }
-export function skyOffset(start: number, progress: number, reduced = false) {
- return Math.min(PANORAMA_HEIGHT - 1, Math.max(0, start + (reduced ? 0 : Math.min(1, Math.max(0, progress)) * SCROLL_TRAVEL)));
+/** Reserve the full document's physical height inside the fixed virtual panorama. */
+export function maxStartForDocument(projectionHeight: number, documentHeight: number) {
+ return Math.max(0,PANORAMA_HEIGHT-Math.max(1,documentHeight/Math.max(1,projectionHeight)));
+}
+/** The sole atmospheric fade ends at the title section, before the gallery. */
+export function titleStarOpacity(worldY: number, start: number, end: number) {
+ return end<=start?(worldY>=end?1:0):Math.min(1,Math.max(0,(worldY-start)/(end-start)));
 }
 /** Rotated equirectangular: declination runs left→right, RA runs top→bottom. */
 export function project(star: Pick<Star, 'ra' | 'dec'>, width: number, height: number, offset: number) {
