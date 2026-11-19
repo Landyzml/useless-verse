@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540">
+ <path fill="#f3eee4" d="M0 0h720v540H0z"/>
+ <g transform="rotate(8 551 250)">
+  <path d="M457 98h183v287H457Z" fill="#e1d6c3"/>
+  <path d="M450 90h184v285H450Z" fill="#fcfaf3" stroke="#d8cab4" stroke-width="1.5"/>
+  <path d="M478 293c24-10 34 13 54 0s30 3 61-4m-115 28c16-5 23 5 40 0m-40 23c29-9 42 7 67-3" stroke="#bca88a" stroke-width="2" fill="none" stroke-linecap="round"/>
+ </g>
+ <path d="M461 353C467 216 556 92 660 71C660 210 568 317 489 324Z" fill="#773d4c"/>
+ <path d="M461 353C491 264 581 144 660 71C642 185 571 264 489 324Z" fill="#8f4c5b"/>
+ <path d="m429 405 176-266" stroke="#773d4c" stroke-width="4" stroke-linecap="round"/>
+ <path d="m490 324 115-185m-100 155-10-52m30 20 38-6m-21-24-4-46m24 16 38-7m-21-27-1-32m17 6 27-7" stroke="#e7d2b1" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+ <path d="M427 406c13-5 28-4 37 1l-4 27c-9 7-28 7-37 0Z" fill="#ece4d4" stroke="#b8a487" stroke-width="1.5"/>
+ <ellipse cx="445" cy="407" rx="18" ry="5" fill="#5e3140"/>
+ <path d="M483 429c30 3 40-5 54-2" fill="none" stroke="#773d4c" stroke-width="2.5" stroke-linecap="round"/>
+ <g fill="#352b32" font-family="Georgia,'Times New Roman',serif">
+  <text x="57" y="220" font-size="66">The Bard’s</text>
+  <text x="57" y="305" font-size="80">Tongue</text>
+ </g>
+ <text x="60" y="477" font-family="Georgia,'Times New Roman',serif" font-size="36" font-style="italic" fill="#773d4c">Thy words, a little more theatrical.</text>
+</svg>

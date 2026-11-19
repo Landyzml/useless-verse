@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
-import { publicAsset } from "@/lib/paths";
 import type { Project } from "@/lib/projects";
+import { ProjectCover } from "./project-cover";
 export function ProjectCard({ project }: { project: Project }) {
- return <article className="project-card"><Link href={`/${project.slug}/`}><div className="project-thumbnail"><Image src={publicAsset(project.thumbnail)} alt="" width={720} height={540} sizes="(max-width: 599px) 100vw, (max-width: 959px) 50vw, 33vw"/></div><h3>{project.title}<span aria-hidden="true">↗</span></h3>{project.description && <p>{project.description}</p>}{project.publishedAt && <time dateTime={project.publishedAt}>{new Intl.DateTimeFormat("en", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(project.publishedAt))}</time>}</Link></article>;
+ return <article className="project-card"><Link href={`/${project.slug}/`}><ProjectCover covers={project.covers}/><h3>{project.title}<span aria-hidden="true">↗</span></h3>{project.description && <p>{project.description}</p>}{project.publishedAt && <time dateTime={project.publishedAt}>{new Intl.DateTimeFormat("en", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(project.publishedAt))}</time>}</Link></article>;
 }

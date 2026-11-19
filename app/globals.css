@@ -7,3 +7,10 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 
 .homepage-quote{position:relative;inline-size:365px;max-inline-size:100%;min-block-size:5em;overflow-wrap:break-word}.quote-fallback{position:absolute;inset:0}@media(max-width:959px){.homepage-quote{min-block-size:6.6em}}@media(max-width:599px){.homepage-quote{inline-size:auto;min-block-size:6.6em}}
+
+/* Covers switch in the same root snapshot as the cosmic theme. A separate fade
+   would capture the previous artwork while the rest of the page changes. */
+.project-cover{position:relative}
+.project-cover img{position:absolute;inset:0;display:block}
+.project-cover-dark{opacity:calc(1 - var(--project-cover-light,0))}
+.project-cover-light{opacity:var(--project-cover-light,0)}

@@ -38,14 +38,15 @@ The build exports static pages to `out/`. Run `pnpm start` to preview this produ
 - `lib/projects.ts`: single ordered, typed project registry. The first translator experience is published.
 - `lib/site.ts`: editable site copy and optional real origin.
 - `public/branding/`: original reusable brand asset.
-- `public/thumbnails/`: real project thumbnails, including the translator’s original quill artwork.
+- `public/covers/<slug>/`: paired dark/light project artwork, rendered by `components/project-cover.tsx`.
+- `docs/project-cover-guidelines.md`: required cover dimensions, design, registration, theme switching, and development fallback behavior.
 - `tests/`: test-only registry/card fixtures, never part of production data.
 
 ## Add an experience
 
 1. Create `app/(experiences)/your-slug/page.tsx`. Route groups do not affect URLs, so this becomes `/your-slug/`. Do not put it inside `(site)`. Do not wrap it in `SiteShell` unless you want the site navigation.
 2. Give that experience its own layout, fonts, scoped styles/CSS modules, colors and metadata. The root stylesheet provides a light baseline; override it within the experience wrapper. Avoid unscoped selectors that affect other routes. Full-screen experiences can set their wrapper to `min-height: 100svh`.
-3. Add a real optimized image to `public/thumbnails/your-slug.webp`, ideally 720×540 (4:3).
+3. Create both `public/covers/your-slug/dark.svg` and `light.svg` (or optimized raster equivalents), 720×540 (4:3). Follow [the project cover guidelines](docs/project-cover-guidelines.md).
 4. Add one record to `projects` in `lib/projects.ts`. Keep `id` unique and `slug` as one URL segment without slashes. `status` must be `draft` until the experience and route are ready.
 
 ```ts
@@ -54,7 +55,10 @@ The build exports static pages to `out/`. Run `pnpm start` to preview this produ
   slug: "your-slug",
   title: "Your experience",
   description: "An optional short description.",
-  thumbnail: "/thumbnails/your-slug.webp",
+  covers: {
+    dark: "/covers/your-slug/dark.svg",
+    light: "/covers/your-slug/light.svg",
+  },
   status: "draft",
   // publishedAt: "2026-11-07", // optional ISO date, interpreted in UTC
   // featured: true,           // optional metadata, no special rendering yet
@@ -62,7 +66,7 @@ The build exports static pages to `out/`. Run `pnpm start` to preview this produ
 }
 ```
 
-5. Verify the route, image and keyboard interaction. Change `status` to `published` and rebuild to add it to the homepage. The empty state disappears automatically. Array order is gallery order; move records to reorder them. Publication dates are display metadata, not a scheduler. No catch-all placeholder route is installed, so unimplemented URLs remain 404s. Draft homepage metadata does not restrict direct access to a route; do not deploy confidential drafts.
+5. Verify the route, both cover themes, and keyboard interaction. Change `status` to `published` and rebuild to add it to the homepage. The empty state disappears automatically. Array order is gallery order; move records to reorder them. Publication dates are display metadata, not a scheduler. No catch-all placeholder route is installed, so unimplemented URLs remain 404s. Draft homepage metadata does not restrict direct access to a route; do not deploy confidential drafts.
 
 Phase 1 is statically exported. Future client-side experiences work naturally. If an experience requires server features, remove `output: "export"` and `images.unoptimized` from `next.config.ts` and use Vercel's Next.js runtime instead of static hosting.
 
@@ -94,7 +98,7 @@ The app is a static Next.js export: it has no Server Actions, request-time APIs,
 
 `.github/workflows/deploy.yml` runs on every push to `main` and supports **Actions → Deploy Useless Verse to GitHub Pages → Run workflow**. It installs the exact pnpm lockfile on Node 24, runs type checking/lint/tests, builds `out/`, verifies local asset/link references, uploads only the static artifact, and deploys to the `github-pages` environment. Only the deployment job receives `pages: write` and `id-token: write`; no custom token or repository secret is required for normal deployments. Workflow failures are visible in the Actions tab, and a failed check blocks publication.
 
-`actions/configure-pages` supplies the real `base_path` and `base_url`. The build passes them as `NEXT_PUBLIC_BASE_PATH` and `NEXT_PUBLIC_SITE_URL`. Next.js `basePath` prefixes Link navigation and framework assets; `lib/paths.ts` prefixes public thumbnails. The metadata URL includes the repository subpath. Leave the base path empty for root hosting. Configure a future custom domain in **Settings → Pages**, then rerun the workflow so the generated path and metadata match that domain.
+`actions/configure-pages` supplies the real `base_path` and `base_url`. The build passes them as `NEXT_PUBLIC_BASE_PATH` and `NEXT_PUBLIC_SITE_URL`. Next.js `basePath` prefixes Link navigation and framework assets; `lib/paths.ts` prefixes public cover assets. The metadata URL includes the repository subpath. Leave the base path empty for root hosting. Configure a future custom domain in **Settings → Pages**, then rerun the workflow so the generated path and metadata match that domain.
 
 To enable Pages manually if necessary:
 
@@ -119,7 +123,7 @@ Open http://127.0.0.1:3000/useless-verse/. Direct access and refresh also work a
 
 ### Publish future updates
 
-Develop normally, add a real project route/thumbnail/registry entry, and run the checks above. Commit and push to `main`:
+Develop normally, add a real project route, paired covers, and registry entry, and run the checks above. Commit and push to `main`:
 
 ```sh
 git add <changed-files>

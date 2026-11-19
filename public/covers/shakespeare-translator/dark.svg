@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540">
+ <defs>
+  <linearGradient id="velvet" x1="720" y1="0" x2="423" y2="434" gradientUnits="userSpaceOnUse"><stop stop-color="#522b3e"/><stop offset="1" stop-color="#261b2b"/></linearGradient>
+  <linearGradient id="feather" x1="468" y1="335" x2="656" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#a87b51"/><stop offset=".5" stop-color="#dfbf83"/><stop offset="1" stop-color="#f4dfae"/></linearGradient>
+ </defs>
+ <path fill="#191923" d="M0 0h720v540H0z"/>
+ <path d="M435 0h285v445C662 356 574 381 500 298S484 98 435 0Z" fill="url(#velvet)"/>
+ <path d="M557 0C514 111 603 234 720 306V0Z" fill="#663348" opacity=".32"/>
+ <path d="M626 0C567 104 651 176 720 216V0Z" fill="#865064" opacity=".18"/>
+ <path d="M461 353C467 216 556 92 660 71C660 210 568 317 489 324Z" fill="url(#feather)"/>
+ <path d="m429 405 176-266m-115 185 115-185" stroke="#dfbf83" stroke-width="4" stroke-linecap="round"/>
+ <path d="m490 324 115-185m-100 155-10-52m30 20 38-6m-21-24-4-46m24 16 38-7m-21-27-1-32m17 6 27-7" stroke="#694c40" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+ <path d="M427 406c13-5 28-4 37 1l-4 27c-9 7-28 7-37 0Z" fill="#292331" stroke="#8a6b58" stroke-width="1.5"/>
+ <ellipse cx="445" cy="407" rx="18" ry="5" fill="#15151f" stroke="#b18b61" stroke-width="1.5"/>
+ <g fill="#f1e8d8" font-family="Georgia,'Times New Roman',serif">
+  <text x="57" y="220" font-size="66">The Bard’s</text>
+  <text x="57" y="305" font-size="80">Tongue</text>
+ </g>
+ <text x="60" y="477" font-family="Georgia,'Times New Roman',serif" font-size="36" font-style="italic" fill="#d6bc95">Thy words, a little more theatrical.</text>
+</svg>
